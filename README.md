@@ -6,41 +6,27 @@ Sistema de gestão condominial integrado à Inteligência Artificial, com módul
 **Equipe:** Guilherme Rastelli (2840482421047) · Felipe Savegnago (2840482421034) · Marcus Milan (2840482421001) · Laboratório de Engenharia de Software · ADS Fatec Ribeirão Preto
 
 ## Stack
-- Frontend: React ou HTML/JS *(definição final pendente)*
-- Backend: C# com .NET 6/8
-- Banco de dados: MySQL, com Entity Framework Core para persistência
-- Integração de IA: API gpt-4 da OpenAI, consumida via biblioteca RestSharp
+- Frontend atual: HTML, CSS e JavaScript, sem dependências ou etapa de build
+- Backend planejado: C# com .NET 8
+- Banco de dados: PostgreSQL 15 foi usado para validar o DDL da E3; formalizar a decisão final da stack com a equipe
+- Integração de IA planejada: API da OpenAI
+
+## Primeiro incremento
+O painel inicial apresenta um resumo do condomínio e permite registrar ocorrências, pesquisar e filtrar chamados e atualizar seus status. Os registros ficam salvos no `localStorage` do navegador.
+
+Os dados de moradores, acessos, unidades e financeiro são demonstrativos. Ainda não há backend, autenticação, banco de dados, integração com dispositivos de acesso ou conexão com a OpenAI.
 
 ## Como rodar localmente
-### Pré-requisitos
-- .NET SDK 6.0 ou 8.0
-- MySQL (versão 8.x recomendada)
-- Node.js [versão mínima] *(caso o frontend seja em React)*
-- Uma API key válida da OpenAI
+1. Abra `frontend/index.html` diretamente em um navegador atualizado.
+2. Acesse **Ocorrências** para registrar chamados e alterar seus status.
 
-### Passo a passo
-1. Clone o repositório: `git clone [url]`
-2. Instale as dependências do backend: `dotnet restore`
-3. Configure as variáveis de ambiente (copie `.env.example` para `.env` e preencha):
-
-   | Variável | Descrição |
-   |---|---|
-   | `OPENAI_API_KEY` | Chave de acesso à API da OpenAI (usada pelo assistente virtual) |
-   | `DB_CONNECTION_STRING` | String de conexão com o MySQL |
-   | `JWT_SECRET` | Chave para geração/validação de tokens de autenticação |
-
-4. Crie o banco e rode o schema: `[comando]`
-5. Rode as migrations/seed (se houver): `dotnet ef database update`
-6. Suba o projeto: `dotnet run`
-7. Acesse em `http://localhost:[porta]`
+Não é necessário instalar dependências ou iniciar um servidor. Limpar os dados do site no navegador restaura os dados demonstrativos iniciais.
 
 ## Estrutura do repositório
 ```
-/src            — código-fonte da API (.NET) e lógica de negócios
-/src/Modulos    — módulos financeiro, logístico e de segurança
-/src/IA         — integração com a API da OpenAI (chatbot, análise de sentimentos)
-/frontend       — interface web (React ou HTML/JS)
-/docs           — documentação do projeto, incluindo este TCC
+/frontend       — interface web estática e lógica do primeiro incremento
+/src            — reservado para a futura API e lógica de negócios
+/docs           — documentação do projeto
 ```
 
 ## Convenções da equipe
@@ -49,7 +35,7 @@ Sistema de gestão condominial integrado à Inteligência Artificial, com módul
 - Toda PR exige revisão de ao menos 1 integrante antes do merge.
 
 ## Testes
-Como rodar: validação de endpoints via Swagger e testes de usabilidade do chatbot (precisão das respostas em cenários simulados de dúvidas/conflitos dos moradores).
+O protótipo atual foi validado manualmente no navegador para cadastro, busca, atualização de status e priorização local de ocorrências. Ainda não há API para testes via Swagger nem testes automatizados xUnit; esses testes entram com o backend.
 
 ## Licença / Uso acadêmico
 Projeto desenvolvido para a disciplina de Laboratório de Engenharia de Software — ADS, Fatec Ribeirão Preto, 2026.
