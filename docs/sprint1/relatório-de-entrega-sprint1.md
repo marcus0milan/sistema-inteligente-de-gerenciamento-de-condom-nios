@@ -11,13 +11,13 @@
 | #3 Cadastro de áreas comuns pelo síndico | Sim | Sim | Nome, capacidade máxima e horário limite obrigatórios; duplicidade de nome no condomínio bloqueada. |
 
 ## 2. Incremento funcional demonstrável
-Aplicação web com API ASP.NET Core .NET 8 e PostgreSQL, executando localmente em `http://localhost:5080`. Permite configurar o condomínio e o primeiro síndico, autenticar síndico e morador, cadastrar unidades, moradores e áreas comuns, com validações e permissões por perfil. Instruções para reproduzir: [`README.md`](../../README.md), seção “Como rodar localmente”. Deploy público: []; vídeo/GIF de demonstração: [].
+Aplicação web com API ASP.NET Core .NET 8 e PostgreSQL, executando localmente em `http://localhost:5080`. Permite configurar o condomínio e o primeiro síndico, autenticar síndico e morador, cadastrar unidades, moradores e áreas comuns, com validações e permissões por perfil. Instruções para reproduzir: [`README.md`](../../README.md), seção “Como rodar localmente”. Deploy público: []; vídeo de demonstração: [`vivacondo - sprint 1.mp4`](./media/vivacondo%20-%20sprint%201.mp4).
 
 ## 3. Backlog atualizado
 Backlog priorizado: [`e2a.md`](../../backlog/sprint1/e2a.md). As histórias #1, #2 e #3 estão atribuídas à Sprint 1 e foram implementadas. Link/print do board e registro das mudanças de status dos cards: [].
 
 ## 4. Evidências de teste
-Detalhamento dos 14 cenários, resultados e códigos HTTP: [`sprint1-evidencias-testes.md`](./sprint1-evidencias-testes.md). O build da API concluiu com 0 erros e 0 avisos. Os testes foram manuais, executados localmente com API e PostgreSQL; não houve execução em CI nem suíte automatizada. Capturas de tela, gravação de vídeo e execução em CI: [].
+Detalhamento dos 14 cenários, resultados e códigos HTTP: [`sprint1-evidencias-testes.md`](./sprint1-evidencias-testes.md). O build da API concluiu com 0 erros e 0 avisos. Os testes foram manuais, executados localmente com API e PostgreSQL; não houve execução em CI nem suíte automatizada. Capturas de tela: [print1](./media/print1.jfif), [print2](./media/print2.jfif) e [print3](./media/print3.jfif). Execução em CI: [].
 
 ## 5. Retrospectiva e contribuição individual
 - Ata de retrospectiva: []
