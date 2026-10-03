@@ -17,7 +17,7 @@ async function apiRequest(path, options = {}) {
   if (!response.ok) {
     const message = response.status === 401
       ? 'E-mail, senha ou perfil inválido. Confira os dados e tente novamente.'
-      : payload?.message || 'Não foi possível concluir a operação. Tente novamente.';
+      : payload?.message || payload?.detail || 'Não foi possível concluir a operação. Tente novamente.';
     const error = new Error(message);
     error.status = response.status;
     throw error;
@@ -144,6 +144,11 @@ function renderHeader() {
     { id: 'inicio', label: 'Visão geral', icon: '⌂' },
     ...(manager ? [{ id: 'cadastros', label: 'Unidades e moradores', icon: '▤' }] : []),
     { id: 'areas', label: 'Áreas comuns', icon: '⌂' },
+    ...(!manager ? [
+      { id: 'reservas', label: 'Reservas', icon: '◷' },
+      { id: 'chamados', label: 'Chamados', icon: '!' },
+      { id: 'assistente', label: 'Assistente', icon: '✦' },
+    ] : []),
   ];
 
   return `
@@ -154,7 +159,7 @@ function renderHeader() {
           <span class="property-symbol" aria-hidden="true">H</span>
           <span class="property-copy"><strong>${escapeHTML(data.condominium.name)}</strong><small>Área do condomínio</small></span>
         </div>
-        <p class="nav-caption">SPRINT 1</p>
+        <p class="nav-caption">VIVACONDO</p>
         <nav class="main-nav">
           ${navigation.map((item) => `
             <a class="nav-link ${currentView === item.id ? 'is-active' : ''}" href="#${item.id}" data-view="${item.id}">
@@ -184,8 +189,8 @@ function renderDashboard() {
   const ownUnit = manager ? null : findUnit(currentUser.unitId);
   return `
     <div class="page-heading">
-      <div><p class="eyebrow">SPRINT 1 · CADASTROS E ACESSO</p><h1>Olá, ${escapeHTML(currentUser.name.split(' ')[0])}</h1>
-      <p class="page-subtitle">${manager ? 'Gerencie os cadastros básicos do condomínio.' : `Seu acesso ao ${escapeHTML(data.condominium.name)}.`}</p></div>
+      <div><p class="eyebrow">GESTÃO DO CONDOMÍNIO</p><h1>Olá, ${escapeHTML(currentUser.name.split(' ')[0])}</h1>
+      <p class="page-subtitle">${manager ? 'Gerencie os cadastros básicos do condomínio.' : `Acompanhe as áreas comuns e solicitações do ${escapeHTML(data.condominium.name)}.`}</p></div>
       ${manager ? '<a class="button button-primary" href="#cadastros" data-view="cadastros">Cadastrar unidade ou morador</a>' : ''}
     </div>
     ${manager ? `
@@ -203,9 +208,15 @@ function renderDashboard() {
         <span class="metric-icon" aria-hidden="true">⌂</span>
         <div><strong>Unidade vinculada</strong><p>${ownUnit ? escapeHTML(unitLabel(ownUnit)) : currentUser.unitId ? 'Sua conta está vinculada a uma unidade cadastrada.' : 'Entre em contato com a administração para verificar seu vínculo.'}</p></div>
       </div>
-      <section class="panel sprint-intro"><div class="panel-heading"><h2>Áreas comuns disponíveis</h2><p>Consulta de áreas cadastradas no condomínio.</p></div>${renderCommonAreaList(false)}</section>
+      <section class="panel sprint-intro"><div class="panel-heading"><h2>Áreas comuns disponíveis</h2><p>Consulte os espaços e solicite uma reserva.</p></div>${renderCommonAreaList(false)}
+        <div class="sprint-link-grid resident-actions">
+          <a class="sprint-link" href="#reservas" data-view="reservas"><strong>Reservar uma área</strong><span>Consulte horários e solicite uma reserva.</span></a>
+          <a class="sprint-link" href="#chamados" data-view="chamados"><strong>Abrir chamado</strong><span>Reporte um problema à administração.</span></a>
+          <a class="sprint-link" href="#assistente" data-view="assistente"><strong>Consultar o regimento</strong><span>Tire dúvidas com o assistente virtual.</span></a>
+        </div>
+      </section>
     `}
-    <p class="sprint-scope-note">Reservas, chamados e assistente virtual não fazem parte das histórias desta sprint.</p>`;
+    `;
 }
 
 function renderUnitRows() {
@@ -280,9 +291,55 @@ function renderAreas() {
     <section class="panel list-panel"><div class="panel-header"><div class="panel-heading"><h2>Áreas cadastradas</h2><p>${data.commonAreas.length} área(s) comum(ns)</p></div></div>${renderCommonAreaList(manager)}</section>`;
 }
 
+function renderReservations() {
+  const areas = data.commonAreas;
+  const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+  return `
+    <div class="page-heading"><div><p class="eyebrow">ÁREAS COMUNS</p><h1>Solicitar reserva</h1><p class="page-subtitle">Escolha a área, a data e o horário desejados.</p></div></div>
+    <section class="panel"><div class="panel-header"><div class="panel-heading"><h2>Nova reserva</h2><p>Máximo de 2 reservas ativas por unidade no mês. Os horários precisam estar livres e respeitar o limite da área.</p></div></div>
+      ${areas.length ? `<form class="form-card form-grid" id="reservation-form">
+        <div class="form-grid-wide"><label for="reservation-area">Área comum</label><select id="reservation-area" name="commonAreaId" required><option value="">Selecione uma área</option>${areas.map((area) => `<option value="${escapeHTML(area.id)}">${escapeHTML(area.name)} · limite ${escapeHTML(area.usageLimit)}</option>`).join('')}</select></div>
+        <div><label for="reservation-date">Data</label><input id="reservation-date" name="date" type="date" min="${today}" required /></div>
+        <div class="form-row"><div><label for="reservation-start">Início</label><input id="reservation-start" name="startTime" type="time" required /></div><div><label for="reservation-end">Fim</label><input id="reservation-end" name="endTime" type="time" required /></div></div>
+        <p class="form-error form-grid-wide" id="reservation-error" role="alert"></p>
+        <button class="button button-primary form-grid-wide" type="submit">Solicitar reserva</button>
+      </form>` : '<div class="empty-state">Ainda não há áreas comuns cadastradas.</div>'}
+    </section>`;
+}
+
+function renderCalls() {
+  return `
+    <div class="page-heading"><div><p class="eyebrow">MANUTENÇÃO</p><h1>Abrir chamado</h1><p class="page-subtitle">Descreva o problema para que a administração possa providenciar o atendimento.</p></div></div>
+    <section class="panel"><div class="panel-header"><div class="panel-heading"><h2>Novo chamado</h2><p>O chamado será registrado com status “Aberto”.</p></div></div>
+      <form class="form-card" id="call-form">
+        <label for="call-category">Categoria</label><input id="call-category" name="category" maxlength="100" placeholder="Ex.: Hidráulica" required />
+        <label for="call-location">Localização</label><input id="call-location" name="location" maxlength="150" placeholder="Ex.: Área da cozinha" required />
+        <label for="call-description">Descrição do problema</label><textarea id="call-description" name="description" maxlength="4000" rows="5" required></textarea>
+        <p class="form-error" id="call-error" role="alert"></p>
+        <button class="button button-primary" type="submit">Enviar chamado</button>
+      </form>
+    </section>`;
+}
+
+function renderAssistant() {
+  return `
+    <div class="page-heading"><div><p class="eyebrow">REGIMENTO INTERNO</p><h1>Assistente virtual</h1><p class="page-subtitle">Faça uma pergunta; as respostas usam somente o regimento cadastrado.</p></div></div>
+    <section class="panel"><div class="panel-header"><div class="panel-heading"><h2>Tire sua dúvida</h2><p>Se a informação não estiver no documento, o assistente avisará.</p></div></div>
+      <form class="form-card" id="assistant-form">
+        <label for="assistant-question">Sua pergunta</label><textarea id="assistant-question" name="question" maxlength="1000" rows="3" placeholder="Ex.: Qual é o horário permitido para usar a área comum?" required></textarea>
+        <p class="form-error" id="assistant-error" role="alert"></p>
+        <button class="button button-primary" type="submit">Consultar regimento</button>
+        <div id="assistant-answer" class="assistant-answer" role="status" aria-live="polite" hidden></div>
+      </form>
+    </section>`;
+}
+
 function renderView() {
   if (currentView === 'cadastros' && currentUser.profile === 'SINDICO') return renderManagement();
   if (currentView === 'areas') return renderAreas();
+  if (currentView === 'reservas' && currentUser.profile === 'MORADOR') return renderReservations();
+  if (currentView === 'chamados' && currentUser.profile === 'MORADOR') return renderCalls();
+  if (currentView === 'assistente' && currentUser.profile === 'MORADOR') return renderAssistant();
   return renderDashboard();
 }
 
@@ -392,6 +449,47 @@ async function handleArea(form) {
   await navigate('areas');
 }
 
+async function handleReservation(form) {
+  const values = readForm(form);
+  const reservation = await apiRequest('/reservations', {
+    method: 'POST',
+    body: JSON.stringify({
+      commonAreaId: Number(values.commonAreaId),
+      date: values.date,
+      startTime: values.startTime,
+      endTime: values.endTime,
+    }),
+  });
+  showToast(`Reserva solicitada. Status: ${reservation.status === 'PENDENTE' ? 'Pendente' : reservation.status}.`);
+  await navigate('reservas');
+}
+
+async function handleCall(form) {
+  const values = readForm(form);
+  const call = await apiRequest('/calls', {
+    method: 'POST',
+    body: JSON.stringify({
+      category: values.category.trim(),
+      location: values.location.trim(),
+      description: values.description.trim(),
+    }),
+  });
+  showToast(`Chamado #${call.id} aberto.`);
+  await navigate('chamados');
+}
+
+async function handleAssistant(form) {
+  const values = readForm(form);
+  displayFormError('assistant-error', '');
+  const answer = await apiRequest('/assistant/questions', {
+    method: 'POST',
+    body: JSON.stringify({ question: values.question.trim() }),
+  });
+  const target = document.querySelector('#assistant-answer');
+  target.textContent = answer.answer;
+  target.hidden = false;
+}
+
 document.addEventListener('click', (event) => {
   const viewLink = event.target.closest('[data-view]');
   if (viewLink && currentUser) {
@@ -420,6 +518,9 @@ document.addEventListener('submit', async (event) => {
     else if (form.id === 'unit-form') await handleUnit(form);
     else if (form.id === 'resident-form') await handleResident(form);
     else if (form.id === 'area-form') await handleArea(form);
+    else if (form.id === 'reservation-form') await handleReservation(form);
+    else if (form.id === 'call-form') await handleCall(form);
+    else if (form.id === 'assistant-form') await handleAssistant(form);
   } catch (error) {
     const errorId = {
       'bootstrap-form': 'bootstrap-error',
@@ -427,6 +528,9 @@ document.addEventListener('submit', async (event) => {
       'unit-form': 'unit-error',
       'resident-form': 'resident-error',
       'area-form': 'area-error',
+      'reservation-form': 'reservation-error',
+      'call-form': 'call-error',
+      'assistant-form': 'assistant-error',
     }[form.id];
     if (errorId) displayFormError(errorId, error.message || 'Não foi possível concluir a operação.');
     if (form.id === 'login-form' && errorId) displayFormError(errorId, error.message);
