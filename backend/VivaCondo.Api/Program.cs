@@ -544,7 +544,7 @@ static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
 static bool IsValidCpf(string value)
 {
     var cpf = new string(value.Where(char.IsAsciiDigit).ToArray());
-    if (cpf.Length != 11 || cpf.Any(character => character != cpf[0])) return false;
+    if (cpf.Length != 11 || cpf.All(character => character == cpf[0])) return false;
 
     for (var digitIndex = 9; digitIndex <= 10; digitIndex++)
     {

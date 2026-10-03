@@ -201,7 +201,7 @@ function renderDashboard() {
     ` : `
       <div class="resident-summary">
         <span class="metric-icon" aria-hidden="true">⌂</span>
-        <div><strong>Unidade vinculada</strong><p>${ownUnit ? escapeHTML(unitLabel(ownUnit)) : 'Entre em contato com a administração para verificar seu vínculo.'}</p></div>
+        <div><strong>Unidade vinculada</strong><p>${ownUnit ? escapeHTML(unitLabel(ownUnit)) : currentUser.unitId ? 'Sua conta está vinculada a uma unidade cadastrada.' : 'Entre em contato com a administração para verificar seu vínculo.'}</p></div>
       </div>
       <section class="panel sprint-intro"><div class="panel-heading"><h2>Áreas comuns disponíveis</h2><p>Consulta de áreas cadastradas no condomínio.</p></div>${renderCommonAreaList(false)}</section>
     `}
