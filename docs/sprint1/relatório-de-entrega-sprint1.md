@@ -21,8 +21,7 @@ Detalhamento dos 14 cenários, resultados e códigos HTTP: [`sprint1-evidencias-
 
 ## 5. Retrospectiva e contribuição individual
 - Ata de retrospectiva: []
-- Relatórios individuais de contribuição: []
-- Papéis definidos para a Sprint 1 em [`e2b.md`](../../backlog/sprint1/e2b.md): Guilherme Rastelli Fernandes — Product Owner / AI & Backend Specialist; Felipe Savegnago Pires — Backend Developer & Database Lead; Marcus Vinicius Milan — Frontend Developer & QA Lead. Registros individuais do trabalho realizado: [].
+- Relatório de contribuição por integrante: [`sprint1-contirbuicao.md`](./sprint1-contirbuicao.md). Os papéis definidos para a Sprint 1 estão em [`e2b.md`](../../backlog/sprint1/e2b.md). Links para commits, pull requests ou registros individuais de tarefas: [].
 
 ## 6. Riscos/impedimentos para a próxima sprint
 Registro formal de riscos ou impedimentos: []. Conforme o backlog priorizado, a Sprint 2 tem como alvo as histórias #4 (reservas de áreas comuns), #5 (abertura de chamados) e #6 (assistente virtual com RAG), descritas em [`e2a.md`](../../backlog/sprint1/e2a.md).
