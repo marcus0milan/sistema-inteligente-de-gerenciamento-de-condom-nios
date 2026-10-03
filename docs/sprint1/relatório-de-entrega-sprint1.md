@@ -1,0 +1,28 @@
+# Relatório de Entrega — Sprint 1 — Sistema Inteligente de Gerenciamento de Condomínios
+
+**Período:** 02/10/2026
+**Sprint Review:** 03/10/2026, com o professor Lucas B. F.
+
+## 1. Planejado vs. entregue
+| História (E2) | Planejada para esta sprint? | Entregue? | Observação |
+|---|---|---|---|
+| #1 Autenticação de morador e síndico | Sim | Sim | Login por e-mail e senha, controle de acesso por perfil, senha mínima de 8 caracteres e mensagem para credenciais inválidas. |
+| #2 Cadastro de unidades e moradores pelo síndico | Sim | Sim | Unidade única por bloco e número; CPF validado no servidor e no banco; morador vinculado a unidade existente do condomínio. |
+| #3 Cadastro de áreas comuns pelo síndico | Sim | Sim | Nome, capacidade máxima e horário limite obrigatórios; duplicidade de nome no condomínio bloqueada. |
+
+## 2. Incremento funcional demonstrável
+Aplicação web com API ASP.NET Core .NET 8 e PostgreSQL, executando localmente em `http://localhost:5080`. Permite configurar o condomínio e o primeiro síndico, autenticar síndico e morador, cadastrar unidades, moradores e áreas comuns, com validações e permissões por perfil. Instruções para reproduzir: [`README.md`](../../README.md), seção “Como rodar localmente”. Deploy público: []; vídeo/GIF de demonstração: [].
+
+## 3. Backlog atualizado
+Backlog priorizado: [`e2a.md`](../../backlog/sprint1/e2a.md). As histórias #1, #2 e #3 estão atribuídas à Sprint 1 e foram implementadas. Link/print do board e registro das mudanças de status dos cards: [].
+
+## 4. Evidências de teste
+Detalhamento dos 14 cenários, resultados e códigos HTTP: [`sprint1-evidencias-testes.md`](./sprint1-evidencias-testes.md). O build da API concluiu com 0 erros e 0 avisos. Os testes foram manuais, executados localmente com API e PostgreSQL; não houve execução em CI nem suíte automatizada. Capturas de tela, gravação de vídeo e execução em CI: [].
+
+## 5. Retrospectiva e contribuição individual
+- Ata de retrospectiva: []
+- Relatórios individuais de contribuição: []
+- Papéis definidos para a Sprint 1 em [`e2b.md`](../../backlog/sprint1/e2b.md): Guilherme Rastelli Fernandes — Product Owner / AI & Backend Specialist; Felipe Savegnago Pires — Backend Developer & Database Lead; Marcus Vinicius Milan — Frontend Developer & QA Lead. Registros individuais do trabalho realizado: [].
+
+## 6. Riscos/impedimentos para a próxima sprint
+Registro formal de riscos ou impedimentos: []. Conforme o backlog priorizado, a Sprint 2 tem como alvo as histórias #4 (reservas de áreas comuns), #5 (abertura de chamados) e #6 (assistente virtual com RAG), descritas em [`e2a.md`](../../backlog/sprint1/e2a.md).
