@@ -1,7 +1,7 @@
 # Relatório de Entrega — Sprint 1 — Sistema Inteligente de Gerenciamento de Condomínios
 
-**Período:** []
-**Sprint Review:** []
+**Período:** 03/10/2026
+**Sprint Review:** 03/10/2026, com o professor Lucas B. F.
 
 ## 1. Planejado vs. entregue
 | História (E2) | Planejada para esta sprint? | Entregue? | Observação |
