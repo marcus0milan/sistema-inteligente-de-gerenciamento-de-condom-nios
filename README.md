@@ -16,7 +16,7 @@ O frontend permite configurar o condomínio e o primeiro acesso de síndico, ent
 
 O sistema usa a API e o PostgreSQL: a senha é derivada no servidor, o acesso é controlado por token/perfil e os dados são persistidos no banco. A API valida CPF, vínculo do morador, permissões, conflitos de horário e limite mensal de reservas. O limite inicial é de 2 reservas ativas por unidade/mês; reservas pendentes e confirmadas contam para esse limite.
 
-O assistente envia à API da OpenAI somente trechos relevantes do arquivo de regimento configurado. Se a busca não encontrar conteúdo relacionado, responde que não encontrou a informação no documento. O upload e processamento de PDF não fazem parte desta sprint; configure um arquivo de texto extraído do regimento.
+O assistente envia à API da OpenAI somente trechos relevantes do arquivo de regimento configurado. Se a busca não encontrar conteúdo relacionado, responde que não encontrou a informação no documento. Para esta entrega, configure um arquivo de texto com o conteúdo do regimento; o arquivo deve ser fornecido localmente.
 
 ## Como rodar localmente
 Requisitos: .NET 8 SDK e PostgreSQL 15+.
@@ -74,6 +74,8 @@ Fluxos manuais recomendados com a API e PostgreSQL em execução:
 - Solicitar duas reservas com horários sobrepostos na mesma área e confirmar que a segunda é rejeitada; verificar também o limite de duas reservas ativas por unidade no mês e o horário limite da área.
 - Abrir chamado com categoria, localização e descrição; confirmar status inicial “ABERTO” no banco.
 - Consultar o assistente com uma pergunta respondida pelo regimento e outra sem resposta nele; confirmar que a segunda recebe a mensagem de informação não encontrada.
+
+Os três últimos itens validam as histórias #4, #5 e #6 da Sprint 2. O build confirma a compilação da API, mas não substitui esses testes funcionais com PostgreSQL e, para o assistente, com `OPENAI_API_KEY` e `REGIMENTO_PATH` configurados. O estado conhecido da validação está em [Evidências de Validação – Sprint 2](docs/sprint2/evidencias-testes-sprint2.md).
 
 O script aplicado na inicialização está em `backend\VivaCondo.Api\database\schema.sql`. Reservas e chamados são armazenados no PostgreSQL; o regimento continua sendo fornecido por arquivo de texto local, sem funcionalidade de upload nesta sprint.
 

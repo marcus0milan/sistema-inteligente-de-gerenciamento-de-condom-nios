@@ -199,7 +199,7 @@ function renderDashboard() {
         <article class="metric-card"><div class="metric-top"><span>Moradores cadastrados</span><span class="metric-icon" aria-hidden="true">♙</span></div><div class="metric-value">${data.users.length}</div></article>
         <article class="metric-card"><div class="metric-top"><span>Áreas comuns</span><span class="metric-icon" aria-hidden="true">▦</span></div><div class="metric-value">${data.commonAreas.length}</div></article>
       </div>
-      <section class="panel sprint-intro"><div class="panel-heading"><h2>Escopo desta entrega</h2><p>Somente histórias planejadas para a Sprint 1.</p></div><div class="sprint-link-grid">
+      <section class="panel sprint-intro"><div class="panel-heading"><h2>Funcionalidades entregues</h2><p>Cadastros de condomínio e funcionalidades das Sprints 1 e 2.</p></div><div class="sprint-link-grid">
         <a class="sprint-link" href="#cadastros" data-view="cadastros"><strong>Unidades e moradores</strong><span>Cadastro com validação de vínculo e CPF.</span></a>
         <a class="sprint-link" href="#areas" data-view="areas"><strong>Áreas comuns</strong><span>Cadastro com capacidade e horário limite.</span></a>
       </div></section>
