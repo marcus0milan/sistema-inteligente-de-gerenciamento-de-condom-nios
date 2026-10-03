@@ -19,7 +19,7 @@ BEGIN
   FOR etapa IN 1..2 LOOP
     soma := 0;
     FOR indice IN 1..(8 + etapa) LOOP
-      soma := soma + substring(digitos, indice, 1)::INTEGER * (9 + etapa - indice);
+      soma := soma + substring(digitos, indice, 1)::INTEGER * (10 + etapa - indice);
     END LOOP;
     resto := (soma * 10) % 11;
     esperado := CASE WHEN resto = 10 THEN 0 ELSE resto END;
