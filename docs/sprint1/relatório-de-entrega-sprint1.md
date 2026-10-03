@@ -1,6 +1,6 @@
 # Relatório de Entrega — Sprint 1 — Sistema Inteligente de Gerenciamento de Condomínios
 
-**Período:** 02/10/2026
+**Período:** Não especificado nos registros disponíveis (retrospectiva realizada em 02/10/2026).
 **Sprint Review:** Não há registro verificável da data ou dos participantes nos documentos disponíveis.
 
 ## 1. Planejado vs. entregue
@@ -24,4 +24,4 @@ Detalhamento dos 14 cenários, resultados e códigos HTTP: [`sprint1-evidencias-
 - Relatório de contribuição por integrante: [`sprint1-contirbuicao.md`](./sprint1-contirbuicao.md). Os papéis definidos para a Sprint 1 estão em [`e2b.md`](../../backlog/sprint1/e2b.md). Não foram localizados links para commits, pull requests ou registros individuais de tarefas nos documentos disponíveis.
 
 ## 6. Riscos/impedimentos para a próxima sprint
-Não foram identificados riscos ou impedimentos registrados para a próxima sprint. Conforme o backlog priorizado, a Sprint 2 tem como alvo as histórias #4 (reservas de áreas comuns), #5 (abertura de chamados) e #6 (assistente virtual com RAG), descritas em [`e2a.md`](../../backlog/sprint1/e2a.md).
+A retrospectiva registrou como ação necessária definir e documentar o limite mensal de reservas antes de implementar a história #4; Guilherme Rastelli Fernandes ficou responsável por essa definição. A Sprint 2 tem como alvo as histórias #4 (reservas de áreas comuns), #5 (abertura de chamados) e #6 (assistente virtual com RAG), conforme o backlog priorizado em [`e2a.md`](../../backlog/sprint1/e2a.md).
