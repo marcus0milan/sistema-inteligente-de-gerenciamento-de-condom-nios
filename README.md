@@ -19,36 +19,77 @@ O sistema usa a API e o PostgreSQL: a senha é derivada no servidor, o acesso é
 O assistente envia à API da OpenAI somente trechos relevantes do arquivo de regimento configurado. Se a busca não encontrar conteúdo relacionado, responde que não encontrou a informação no documento. Para esta entrega, configure um arquivo de texto com o conteúdo do regimento; o arquivo deve ser fornecido localmente.
 
 ## Como rodar localmente
-Requisitos: .NET 8 SDK e PostgreSQL 15+.
 
-1. Crie um banco PostgreSQL vazio para esta aplicação (não reutilize um banco com dados nem o banco de exemplo carregado pelo script completo da E3):
+Para executar em outro computador, cada pessoa precisa ter o repositório, o **.NET 8 SDK** e um **PostgreSQL 15 ou superior** instalados. Esta configuração roda a aplicação localmente na máquina de quem a executa; não publica um site para outras pessoas acessarem pela internet.
 
-```powershell
-psql -U postgres -c "CREATE DATABASE vivacondo;"
+### 1. Obtenha o projeto e instale os pré-requisitos
+
+- Clone ou baixe este repositório e abra um terminal na pasta raiz (a pasta que contém `README.md`).
+- Instale o .NET 8 SDK e o PostgreSQL 15+. O serviço do PostgreSQL deve estar em execução.
+- Para criar o banco pelo terminal, instale/disponibilize também o cliente `psql`. Alternativamente, crie o banco pelo pgAdmin.
+
+Confirme que o terminal está na raiz do projeto:
+
+```text
+README.md
+backend/
+frontend/
 ```
 
-   A API cria as tabelas necessárias às Sprints 1 e 2 na inicialização.
-2. No PowerShell, configure a conexão, gere uma chave JWT local e inicie a API:
+### 2. Crie um banco de dados vazio
+
+Crie um banco chamado `vivacondo`. Pelo terminal, o comando é:
+
+```sh
+psql -h localhost -U postgres -c "CREATE DATABASE vivacondo;"
+```
+
+Informe a senha do usuário PostgreSQL quando solicitado. Se seu usuário ou porta forem diferentes, adapte-os no comando e na connection string da etapa seguinte. No pgAdmin, a alternativa é criar um banco chamado `vivacondo` conectado ao seu servidor local.
+
+**Use um banco vazio e exclusivo para esta aplicação.** Não carregue nele o script de exemplo de `docs/modelagem/e3c.md` nem reutilize um banco com tabelas de outro exercício. A API cria/atualiza o schema necessário na inicialização; os dados permanecem no PostgreSQL entre execuções.
+
+### 3. Configure e inicie a API
+
+Execute os comandos a partir da raiz do repositório. Configure a connection string com a senha do seu próprio usuário PostgreSQL e gere uma chave JWT aleatória localmente. Não compartilhe nem salve a senha ou a chave no repositório.
+
+**Windows — PowerShell:**
 
 ```powershell
-$env:ConnectionStrings__Default = "Host=localhost;Port=5432;Database=vivacondo;Username=postgres;Password=SUA_SENHA_LOCAL"
+$env:ConnectionStrings__Default = "Host=localhost;Port=5432;Database=vivacondo;Username=postgres;Password=SUBSTITUA_PELA_SENHA_DO_POSTGRES"
 $bytes = New-Object byte[] 32
 $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
 $rng.GetBytes($bytes)
 $env:JWT_SIGNING_KEY = [Convert]::ToBase64String($bytes)
 $rng.Dispose()
 $env:ASPNETCORE_URLS = "http://localhost:5080"
-$env:OPENAI_API_KEY = "sua-chave-local"
-$env:REGIMENTO_PATH = "C:\caminho\para\regimento.txt"
 dotnet run --project backend\VivaCondo.Api\VivaCondo.Api.csproj
 ```
 
-3. Abra `http://localhost:5080`. No primeiro acesso, cadastre o condomínio e o primeiro síndico. O síndico pode então cadastrar unidades, moradores e áreas comuns; o morador entra com as credenciais criadas pelo síndico.
+**macOS ou Linux — Bash:**
 
-Não use credenciais ou dados pessoais reais em ambientes de demonstração. A chave JWT deve ser mantida em variável de ambiente e trocada em cada ambiente.
+```sh
+export ConnectionStrings__Default='Host=localhost;Port=5432;Database=vivacondo;Username=postgres;Password=SUBSTITUA_PELA_SENHA_DO_POSTGRES'
+export JWT_SIGNING_KEY="$(openssl rand -base64 32)"
+export ASPNETCORE_URLS='http://localhost:5080'
+dotnet run --project backend/VivaCondo.Api/VivaCondo.Api.csproj
+```
 
-As variáveis `OPENAI_API_KEY` e `REGIMENTO_PATH` são necessárias para usar o assistente; login, reservas e chamados não dependem delas. `REGIMENTO_PATH` pode ser absoluto ou relativo ao diretório do projeto da API. Não adicione chaves ou documentos privados ao repositório. A API usa o modelo `gpt-4o-mini` por padrão.
+O primeiro `dotnet run` restaura as dependências NuGet e compila a API; é necessário ter acesso aos feeds NuGet nessa primeira execução. Mantenha esse terminal aberto enquanto estiver usando a aplicação. Quando aparecer a mensagem de que está ouvindo em `http://localhost:5080`, abra esse endereço no navegador. No primeiro acesso, cadastre o condomínio e o primeiro síndico; depois, o síndico pode cadastrar unidades, moradores e áreas comuns.
 
+Se `dotnet` não for reconhecido, instale o **SDK** (não apenas o runtime), feche e reabra o terminal e confirme com `dotnet --list-sdks`. Se houver erro de conexão, confira se o PostgreSQL está iniciado, se o banco foi criado e se usuário, senha, host e porta da connection string correspondem à instalação local.
+
+### Assistente do regimento (opcional)
+
+O restante do sistema — configuração, login, cadastros, reservas e chamados — pode ser iniciado sem chave da OpenAI ou arquivo do regimento. Para habilitar o assistente, configure também `OPENAI_API_KEY` com uma chave própria e `REGIMENTO_PATH` apontando para um arquivo de texto local com o conteúdo do regimento. No PowerShell, por exemplo:
+
+```powershell
+$env:OPENAI_API_KEY = "SUA_CHAVE_DA_OPENAI"
+$env:REGIMENTO_PATH = "C:\caminho\para\regimento.txt"
+```
+
+No Bash, use `export OPENAI_API_KEY='SUA_CHAVE_DA_OPENAI'` e `export REGIMENTO_PATH='/caminho/para/regimento.txt'`. O arquivo e a chave são individuais, não estão incluídos no repositório, e não devem ser enviados em commits. A API usa `gpt-4o-mini` por padrão.
+
+Não use credenciais ou dados pessoais reais em ambientes de demonstração. As variáveis configuradas no terminal valem para aquela sessão; gere uma chave JWT própria em cada ambiente.
 ## Estrutura do repositório
 ```
 /frontend                  — interface web das Sprints 1 e 2
