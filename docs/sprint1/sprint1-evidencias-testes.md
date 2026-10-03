@@ -44,7 +44,9 @@ As credenciais e os dados pessoais completos usados nos testes não são reprodu
 - Respostas HTTP observadas durante os testes locais: `201`, `200`, `400`, `401`, `403` e `409`, de acordo com os cenários acima.
 - Os dados cadastrados foram consultados novamente pela API, confirmando persistência no PostgreSQL após as operações.
 - A validação foi manual; não foi criado nem executado um conjunto automatizado de testes unitários ou de integração.
-- Capturas de tela, gravação de vídeo e execução em CI: `[]`.
+- Capturas de tela: [print1](./media/print1.jfif), [print2](./media/print2.jfif) e [print3](./media/print3.jfif).
+- Gravação da demonstração: [vivacondo - sprint 1.mp4](./media/vivacondo%20-%20sprint%201.mp4).
+- Não houve execução em CI.
 
 ## 5. Observações
 

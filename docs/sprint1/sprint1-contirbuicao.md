@@ -37,4 +37,4 @@ Este documento organiza por integrante as responsabilidades e frentes relacionad
 
 ## Registro individual
 
-Links para commits, pull requests, tarefas atribuídas individualmente ou confirmação dos integrantes: [].
+Não foram localizados links para commits, pull requests, tarefas atribuídas individualmente ou confirmações dos integrantes nos documentos disponíveis. As frentes acima descrevem como as responsabilidades oficiais se relacionam com o escopo entregue; não representam atribuição comprovada de cada tarefa a uma pessoa específica.
