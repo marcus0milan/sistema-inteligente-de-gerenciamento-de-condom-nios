@@ -1,7 +1,7 @@
 # Relatório de Entrega — Sprint 1 — Sistema Inteligente de Gerenciamento de Condomínios
 
-**Período:** Não especificado nos registros disponíveis (retrospectiva realizada em 02/10/2026).
-**Sprint Review:** Não há registro verificável da data ou dos participantes nos documentos disponíveis.
+**Período:** 02/10/2026
+**Sprint Review:** 03/10/2026, com o professor Lucas B. F.
 
 ## 1. Planejado vs. entregue
 | História (E2) | Planejada para esta sprint? | Entregue? | Observação |
@@ -20,7 +20,7 @@ Backlog priorizado: [`e2a.md`](../../backlog/sprint1/e2a.md). As histórias #1, 
 Detalhamento dos 14 cenários, resultados e códigos HTTP: [`sprint1-evidencias-testes.md`](./sprint1-evidencias-testes.md). O build da API concluiu com 0 erros e 0 avisos. Os testes foram manuais, executados localmente com API e PostgreSQL; não houve execução em CI nem suíte automatizada. Capturas de tela: [print1](./media/print1.jfif), [print2](./media/print2.jfif) e [print3](./media/print3.jfif).
 
 ## 5. Retrospectiva e contribuição individual
-- Ata de retrospectiva: [`ata de retrospectiva-sprint1.md`](./ata%20de%20retrospectiva-sprint1.md).
+- Ata de retrospectiva: [`ata-de-retrospectiva-sprint1.md`](./ata-de-retrospectiva-sprint1.md).
 - Relatório de contribuição por integrante: [`sprint1-contirbuicao.md`](./sprint1-contirbuicao.md). Os papéis definidos para a Sprint 1 estão em [`e2b.md`](../../backlog/sprint1/e2b.md). Não foram localizados links para commits, pull requests ou registros individuais de tarefas nos documentos disponíveis.
 
 ## 6. Riscos/impedimentos para a próxima sprint
