@@ -1,5 +1,5 @@
 ```sql
--- schema.sql â€” Sistema Inteligente de Gerenciamento de CondomÃ­nios
+-- schema.sql — Sistema Inteligente de Gerenciamento de Condomínios
 -- PostgreSQL 15+. Executar em banco vazio: psql -f db/schema.sql
 
 CREATE TABLE usuario (
@@ -86,7 +86,7 @@ CREATE TABLE regimento (
   data_atualizacao TIMESTAMP NOT NULL
 );
 
--- Ãndice de apoio Ã  consulta agregada do painel (E2, histÃ³ria #8)
+-- Índice de apoio à consulta agregada do painel (E2, história #8)
 CREATE INDEX idx_chamado_status ON chamado(status);
 
 -- Seed de exemplo
@@ -115,7 +115,7 @@ INSERT INTO area_comum (
   capacidade_maxima,
   horario_limite_uso
 ) VALUES
-  (1, 'Salao de Festas', 50, '22:00:00'),
+  (1, 'Salão de Festas', 50, '22:00:00'),
   (1, 'Churrasqueira', 20, '21:00:00');
 
 INSERT INTO reserva (

@@ -1,23 +1,26 @@
-# Diagramas UML â€” Sistema Inteligente de Gerenciamento de CondomÃ­nios
+# Diagramas UML — Sistema Inteligente de Gerenciamento de Condomínios
+
+## Escopo da Sprint 1
+A Sprint 1 prioriza o núcleo operacional do condomínio: autenticação, cadastro e vinculação de usuários, gestão de unidades, acompanhamento de chamados e consulta do regimento interno. As entidades de áreas comuns e reservas já estão modeladas no DER para evolução posterior, mas o foco desta etapa está no fluxo de operação e acompanhamento do condomínio.
 
 ## 1. Diagrama de Casos de Uso
 
 ```mermaid
 flowchart LR
     Morador((Morador))
-    Sindico((SÃ­ndico))
+    Sindico((Síndico))
 
     UC1[Autenticar-se]
     UC2[Cadastrar unidades e moradores]
-    UC3[Cadastrar Ã¡reas comuns]
-    UC4[Solicitar reserva de Ã¡rea comum]
-    UC5[Abrir chamado de manutenÃ§Ã£o]
+    UC3[Cadastrar áreas comuns]
+    UC4[Solicitar reserva de área comum]
+    UC5[Abrir chamado de manutenção]
     UC6[Consultar regimento via assistente virtual]
-    UC7[Gerenciar chamados de manutenÃ§Ã£o]
+    UC7[Gerenciar chamados de manutenção]
     UC8[Visualizar painel de chamados]
     UC9[Atualizar regimento interno]
-    UC10[Consultar histÃ³rico de reservas e chamados]
-    UC11[Exportar relatÃ³rio de chamados]
+    UC10[Consultar histórico de reservas e chamados]
+    UC11[Exportar relatório de chamados]
 
     Morador --> UC1
     Morador --> UC4
@@ -43,42 +46,42 @@ class Usuario {
     +email: string
     +senhaHash: string
     +perfil: enum
-  }
+}
 
-  class CondomÃ­nio {
+class Condomínio {
     +id: int
     +nome: string
     +endereco: string
-  }
+}
 
-  class Unidade {
+class Unidade {
     +id: int
     +bloco: string
     +numero: string
-  }
+}
 
-  class Morador {
+class Morador {
     +id: int
     +cpf: string
     +nome: string
-  }
+}
 
-  class AreaComum {
+class AreaComum {
     +id: int
     +nome: string
     +capacidadeMaxima: int
     +horarioLimiteUso: time
-  }
+}
 
-  class Reserva {
+class Reserva {
     +id: int
     +data: date
     +horaInicio: time
     +horaFim: time
     +status: enum
-  }
+}
 
-  class Chamado {
+class Chamado {
     +id: int
     +categoria: string
     +localizacao: string
@@ -87,60 +90,60 @@ class Usuario {
     +observacao: string
     +justificativaCancelamento: string
     +dataAbertura: datetime
-  }
+}
 
-  class Regimento {
+class Regimento {
     +id: int
     +nomeArquivo: string
     +caminhoArquivo: string
     +dataAtualizacao: datetime
-  }
+}
 
-  class AssistenteVirtual {
+class AssistenteVirtual {
     +consultarRegimento(pergunta: string) string
-  }
+}
 
-  class Historico {
+class Historico {
     +id: int
     +tipo: enum
     +data: datetime
     +status: enum
-  }
+}
 
-  Usuario <|-- Morador
-  Usuario <|-- Sindico
-
-  class Sindico {
+class Sindico {
     +id: int
     +nome: string
-  }
+}
 
-  CondomÃ­nio "1" -- "N" Unidade : possui
-  Unidade "1" -- "N" Morador : vincula
-  CondomÃ­nio "1" -- "N" AreaComum : disponibiliza
-  Morador "1" -- "N" Reserva : solicita
-  AreaComum "1" -- "N" Reserva : recebe
-  Morador "1" -- "N" Chamado : abre
-  Sindico "1" -- "N" Chamado : gerencia
-  CondomÃ­nio "1" -- "N" Chamado : possui
-  CondomÃ­nio "1" -- "N" Regimento : possui
-  Regimento "1" -- "1" AssistenteVirtual : fornece contexto
-  Morador "1" -- "N" Historico : consulta
-  Reserva "1" -- "N" Historico : registra
-  Chamado "1" -- "N" Historico : registra
+Usuario <|-- Morador
+Usuario <|-- Sindico
+
+Condomínio "1" -- "N" Unidade : possui
+Unidade "1" -- "N" Morador : vincula
+Condomínio "1" -- "N" AreaComum : disponibiliza
+Morador "1" -- "N" Reserva : solicita
+AreaComum "1" -- "N" Reserva : recebe
+Morador "1" -- "N" Chamado : abre
+Sindico "1" -- "N" Chamado : gerencia
+Condomínio "1" -- "N" Chamado : possui
+Condomínio "1" -- "N" Regimento : possui
+Regimento "1" -- "1" AssistenteVirtual : fornece contexto
+Morador "1" -- "N" Historico : consulta
+Reserva "1" -- "N" Historico : registra
+Chamado "1" -- "N" Historico : registra
 ```
 
-## 3. Rastreabilidade â€” caso de uso â†’ histÃ³ria do backlog
-| Caso de uso | HistÃ³ria(s) relacionada(s) (E2) |
+## 3. Rastreabilidade — caso de uso → história do backlog
+| Caso de uso | História(s) relacionada(s) (E2) |
 |---|---|
 | Autenticar-se | #1 |
 | Cadastrar unidades e moradores | #2 |
-| Cadastrar Ã¡reas comuns | #3 |
-| Solicitar reserva de Ã¡rea comum | #4 |
-| Abrir chamado de manutenÃ§Ã£o | #5 |
+| Cadastrar áreas comuns | #3 |
+| Solicitar reserva de área comum | #4 |
+| Abrir chamado de manutenção | #5 |
 | Consultar regimento via assistente virtual | #6 |
-| Gerenciar chamados de manutenÃ§Ã£o | #7 |
+| Gerenciar chamados de manutenção | #7 |
 | Visualizar painel de chamados | #8 |
 | Atualizar regimento interno | #9 |
-| Consultar histÃ³rico de reservas e chamados | #10 |
-| Exportar relatÃ³rio de chamados | #11 |
+| Consultar histórico de reservas e chamados | #10 |
+| Exportar relatório de chamados | #11 |
