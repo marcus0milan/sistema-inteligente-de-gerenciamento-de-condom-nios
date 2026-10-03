@@ -79,3 +79,35 @@ CREATE TABLE IF NOT EXISTS area_comum (
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_area_comum_condominio_nome_ci
   ON area_comum (condominio_id, lower(nome));
+
+CREATE TABLE IF NOT EXISTS reserva (
+  id SERIAL PRIMARY KEY,
+  morador_id INT NOT NULL REFERENCES morador(id),
+  area_comum_id INT NOT NULL REFERENCES area_comum(id),
+  data DATE NOT NULL,
+  hora_inicio TIME NOT NULL,
+  hora_fim TIME NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE'
+    CHECK (status IN ('PENDENTE', 'CONFIRMADA', 'CANCELADA')),
+  CHECK (hora_fim > hora_inicio)
+);
+
+CREATE INDEX IF NOT EXISTS idx_reserva_area_data_status
+  ON reserva (area_comum_id, data, status);
+CREATE INDEX IF NOT EXISTS idx_reserva_morador_data_status
+  ON reserva (morador_id, data, status);
+
+CREATE TABLE IF NOT EXISTS chamado (
+  id SERIAL PRIMARY KEY,
+  morador_id INT NOT NULL REFERENCES morador(id),
+  condominio_id INT NOT NULL REFERENCES condominio(id),
+  categoria VARCHAR(100) NOT NULL,
+  localizacao VARCHAR(150) NOT NULL,
+  descricao TEXT NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'ABERTO'
+    CHECK (status IN ('ABERTO', 'EM_ANDAMENTO', 'CONCLUIDO', 'CANCELADO')),
+  data_abertura TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_chamado_morador_data
+  ON chamado (morador_id, data_abertura DESC);
