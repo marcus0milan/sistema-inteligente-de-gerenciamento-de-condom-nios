@@ -17,7 +17,7 @@ Aplicação web com API ASP.NET Core .NET 8 e PostgreSQL, executando localmente 
 Backlog priorizado: `backlog/e2a.md`. As histórias #1, #2 e #3 estão atribuídas à Sprint 1 e foram implementadas. Link/print do board e registro das mudanças de status dos cards: [].
 
 ## 4. Evidências de teste
-Build da API concluído sem erros ou avisos. Testes manuais com API e PostgreSQL locais confirmaram login válido e inválido; cadastro de unidade e bloqueio de unidade duplicada; cadastro de morador com CPF válido; rejeição de CPF inválido, CPF duplicado e unidade inexistente; cadastro de área comum e bloqueio de nome duplicado; login do morador e bloqueio de acesso às rotas administrativas. Documento formal de evidências ou execução em CI: [].
+Detalhamento dos cenários, resultados e códigos HTTP: [`sprint1/sprint1-evidencias-testes.md`](./sprint1/sprint1-evidencias-testes.md). Os testes foram manuais, executados localmente com API e PostgreSQL; não houve execução em CI nem suíte automatizada.
 
 ## 5. Retrospectiva e contribuição individual
 - Ata de retrospectiva: []
