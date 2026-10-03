@@ -1,27 +1,48 @@
-const STORAGE_KEY = 'vivacondo.sprint1.data.v1';
-const SESSION_KEY = 'vivacondo.sprint1.user';
-const PASSWORD_ITERATIONS = 120000;
-const EMPTY_DATA = { condominium: null, users: [], units: [], commonAreas: [] };
+const SESSION_KEY = 'vivacondo.sprint1.token';
 const app = document.querySelector('#app');
 const toast = document.querySelector('#toast');
-let data;
+let data = { condominium: null, users: [], units: [], commonAreas: [] };
 let currentUser = null;
 let currentView = 'inicio';
 let toastTimer;
+let accessToken = sessionStorage.getItem(SESSION_KEY);
 
-function loadData() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return structuredClone(EMPTY_DATA);
+async function apiRequest(path, options = {}) {
+  const headers = new Headers(options.headers);
+  if (options.body) headers.set('Content-Type', 'application/json');
+  if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
 
-  const parsed = JSON.parse(saved);
-  if (!parsed || !Array.isArray(parsed.users) || !Array.isArray(parsed.units) || !Array.isArray(parsed.commonAreas)) {
-    throw new Error('Os dados locais estão inválidos. Limpe os dados deste site para reiniciar o protótipo.');
+  const response = await fetch(`/api${path}`, { ...options, headers });
+  const payload = response.status === 204 ? null : await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = response.status === 401
+      ? 'E-mail, senha ou perfil inválido. Confira os dados e tente novamente.'
+      : payload?.message || 'Não foi possível concluir a operação. Tente novamente.';
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
   }
-  return parsed;
+  return payload;
 }
 
-function persistData(nextData) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(nextData));
+async function loadAccountData() {
+  const [units, users, commonAreas] = currentUser.profile === 'SINDICO'
+    ? await Promise.all([
+      apiRequest('/units'),
+      apiRequest('/residents'),
+      apiRequest('/areas'),
+    ])
+    : [[], [], await apiRequest('/areas')];
+  data = {
+    condominium: {
+      id: currentUser.condominiumId,
+      name: currentUser.condominiumName,
+      address: currentUser.address,
+    },
+    units,
+    users: users.map((user) => ({ ...user, profile: 'MORADOR' })),
+    commonAreas,
+  };
 }
 
 function escapeHTML(value) {
@@ -34,62 +55,8 @@ function escapeHTML(value) {
   })[character]);
 }
 
-function newId() {
-  return crypto.randomUUID();
-}
-
 function normalize(value) {
   return value.trim().toLocaleLowerCase('pt-BR');
-}
-
-function base64FromBytes(bytes) {
-  return btoa(String.fromCharCode(...new Uint8Array(bytes)));
-}
-
-function bytesFromBase64(value) {
-  return Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
-}
-
-async function derivePassword(password, salt) {
-  if (!crypto.subtle) throw new Error('Este navegador não permite autenticação segura neste contexto. Abra a aplicação em localhost.');
-  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
-  return crypto.subtle.deriveBits(
-    { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: PASSWORD_ITERATIONS },
-    key,
-    256,
-  );
-}
-
-async function createCredential(password) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const hash = await derivePassword(password, salt);
-  return { passwordSalt: base64FromBytes(salt), passwordHash: base64FromBytes(hash) };
-}
-
-async function verifyPassword(password, user) {
-  const actual = new Uint8Array(await derivePassword(password, bytesFromBase64(user.passwordSalt)));
-  const expected = bytesFromBase64(user.passwordHash);
-  if (actual.length !== expected.length) return false;
-
-  let difference = 0;
-  for (let index = 0; index < actual.length; index += 1) difference |= actual[index] ^ expected[index];
-  return difference === 0;
-}
-
-function isValidCpf(value) {
-  const cpf = value.replace(/\D/g, '');
-  if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false;
-
-  const calculateDigit = (length) => {
-    const sum = cpf.slice(0, length).split('').reduce(
-      (total, digit, index) => total + Number(digit) * (length + 1 - index),
-      0,
-    );
-    const remainder = (sum * 10) % 11;
-    return remainder === 10 ? 0 : remainder;
-  };
-
-  return calculateDigit(9) === Number(cpf[9]) && calculateDigit(10) === Number(cpf[10]);
 }
 
 function showToast(message) {
@@ -99,13 +66,14 @@ function showToast(message) {
   toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 3200);
 }
 
-function showStorageError(error) {
+function showStartupError(error) {
   app.innerHTML = `
     <section class="auth-screen">
       <div class="auth-card">
         <span class="brand-mark" aria-hidden="true">v</span>
-        <h1>Não foi possível abrir o protótipo</h1>
+        <h1>Não foi possível conectar ao sistema</h1>
         <p class="page-subtitle">${escapeHTML(error.message)}</p>
+        <p class="page-subtitle">Verifique se a API e o PostgreSQL estão em execução.</p>
       </div>
     </section>`;
 }
@@ -120,7 +88,7 @@ function renderBootstrap() {
         <p class="eyebrow">CONFIGURAÇÃO INICIAL · SPRINT 1</p>
         <h1>Criar o acesso da síndica</h1>
         <p class="page-subtitle">Cadastre o condomínio e a primeira conta administrativa para começar.</p>
-        <div class="prototype-notice">Protótipo de interface: os dados ficam somente neste navegador. Não use senhas reais.</div>
+        <div class="prototype-notice">Esta configuração cria o primeiro acesso administrativo do condomínio.</div>
         <label for="bootstrap-condominium">Nome do condomínio</label>
         <input id="bootstrap-condominium" name="condominium" maxlength="150" required />
         <label for="bootstrap-address">Endereço</label>
@@ -146,8 +114,7 @@ function renderLogin(errorMessage = '') {
         </a>
         <p class="eyebrow">ACESSO AO CONDOMÍNIO</p>
         <h1>Bem-vindo ao VivaCondo</h1>
-        <p class="page-subtitle">${escapeHTML(data.condominium.name)}</p>
-        <div class="prototype-notice">Protótipo local de Sprint 1. A autenticação não substitui uma API/backend.</div>
+        <p class="page-subtitle">${escapeHTML(data.condominium?.name ?? 'Acesse seu condomínio')}</p>
         <label for="login-email">E-mail</label>
         <input id="login-email" name="email" type="email" autocomplete="username" required />
         <label for="login-password">Senha</label>
@@ -164,7 +131,7 @@ function renderLogin(errorMessage = '') {
 }
 
 function findUnit(unitId) {
-  return data.units.find((unit) => unit.id === unitId);
+  return data.units.find((unit) => String(unit.id) === String(unitId));
 }
 
 function unitLabel(unit) {
@@ -195,7 +162,6 @@ function renderHeader() {
             </a>`).join('')}
         </nav>
         <div class="sidebar-bottom">
-          <div class="prototype-notice">Modo de demonstração local. Não use dados ou senhas reais.</div>
           <div class="profile-button">
             <span class="avatar">${escapeHTML(currentUser.name.slice(0, 1).toLocaleUpperCase('pt-BR'))}</span>
             <span class="profile-copy"><strong>${escapeHTML(currentUser.name)}</strong><small>${manager ? 'Síndico(a)' : 'Morador(a)'}</small></span>
@@ -225,7 +191,7 @@ function renderDashboard() {
     ${manager ? `
       <div class="metrics-grid sprint-metrics">
         <article class="metric-card"><div class="metric-top"><span>Unidades cadastradas</span><span class="metric-icon" aria-hidden="true">⌂</span></div><div class="metric-value">${data.units.length}</div></article>
-        <article class="metric-card"><div class="metric-top"><span>Moradores cadastrados</span><span class="metric-icon" aria-hidden="true">♙</span></div><div class="metric-value">${data.users.filter((user) => user.profile === 'MORADOR').length}</div></article>
+        <article class="metric-card"><div class="metric-top"><span>Moradores cadastrados</span><span class="metric-icon" aria-hidden="true">♙</span></div><div class="metric-value">${data.users.length}</div></article>
         <article class="metric-card"><div class="metric-top"><span>Áreas comuns</span><span class="metric-icon" aria-hidden="true">▦</span></div><div class="metric-value">${data.commonAreas.length}</div></article>
       </div>
       <section class="panel sprint-intro"><div class="panel-heading"><h2>Escopo desta entrega</h2><p>Somente histórias planejadas para a Sprint 1.</p></div><div class="sprint-link-grid">
@@ -245,13 +211,13 @@ function renderDashboard() {
 function renderUnitRows() {
   if (!data.units.length) return '<div class="empty-state">Nenhuma unidade cadastrada.</div>';
   return `<div class="data-list">${data.units.map((unit) => {
-    const residentCount = data.users.filter((user) => user.profile === 'MORADOR' && user.unitId === unit.id).length;
+    const residentCount = unit.residentCount;
     return `<article class="data-row"><div><strong>${escapeHTML(unitLabel(unit))}</strong><small>${residentCount} morador(es) vinculado(s)</small></div></article>`;
   }).join('')}</div>`;
 }
 
 function renderResidentRows() {
-  const residents = data.users.filter((user) => user.profile === 'MORADOR');
+  const residents = data.users;
   if (!residents.length) return '<div class="empty-state">Nenhum morador cadastrado.</div>';
   return `<div class="data-list">${residents.map((resident) => {
     const unit = findUnit(resident.unitId);
@@ -328,11 +294,12 @@ function renderApp() {
   app.innerHTML = renderHeader();
 }
 
-function navigate(view) {
+async function navigate(view) {
   if (view === 'cadastros' && currentUser.profile !== 'SINDICO') {
     showToast('Apenas o perfil de síndico pode gerenciar unidades e moradores.');
     view = 'inicio';
   }
+  await loadAccountData();
   currentView = view;
   window.history.replaceState(null, '', `#${view}`);
   renderApp();
@@ -350,141 +317,92 @@ function readForm(form) {
 
 async function handleBootstrap(form) {
   const values = readForm(form);
-  const email = normalize(values.email);
-  if (values.password.length < 8) {
-    displayFormError('bootstrap-error', 'A senha precisa ter no mínimo 8 caracteres.');
-    return;
-  }
-
-  const credential = await createCredential(values.password);
-  const administrator = {
-    id: newId(),
-    name: values.name.trim(),
-    email,
-    profile: 'SINDICO',
-    ...credential,
-  };
-  const nextData = {
-    condominium: { id: newId(), name: values.condominium.trim(), address: values.address.trim() },
-    users: [administrator],
-    units: [],
-    commonAreas: [],
-  };
-  persistData(nextData);
-  data = nextData;
+  await apiRequest('/setup', {
+    method: 'POST',
+    body: JSON.stringify({
+      condominiumName: values.condominium.trim(),
+      address: values.address.trim(),
+      name: values.name.trim(),
+      email: normalize(values.email),
+      password: values.password,
+    }),
+  });
+  data.condominium = { name: values.condominium.trim() };
   showToast('Condomínio configurado. Entre com o e-mail e a senha cadastrados.');
   renderLogin();
 }
 
 async function handleLogin(form) {
   const values = readForm(form);
-  const email = normalize(values.email);
-  const user = data.users.find((candidate) => candidate.email === email && candidate.profile === values.profile);
-  if (!user || !await verifyPassword(values.password, user)) {
-    renderLogin('E-mail, senha ou perfil inválido. Confira os dados e tente novamente.');
-    return;
-  }
-
-  sessionStorage.setItem(SESSION_KEY, user.id);
-  currentUser = user;
-  navigate('inicio');
+  const result = await apiRequest('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      email: normalize(values.email),
+      password: values.password,
+      profile: values.profile,
+    }),
+  });
+  accessToken = result.token;
+  sessionStorage.setItem(SESSION_KEY, accessToken);
+  currentUser = result.user;
+  await navigate('inicio');
 }
 
-function handleUnit(form) {
+async function handleUnit(form) {
   const values = readForm(form);
-  const block = values.block.trim();
-  const number = values.number.trim();
-  const duplicate = data.units.some((unit) => normalize(unit.block) === normalize(block) && normalize(unit.number) === normalize(number));
-  if (duplicate) {
-    displayFormError('unit-error', 'Já existe uma unidade com esse bloco e número.');
-    return;
-  }
-
-  const nextData = {
-    ...data,
-    units: [...data.units, { id: newId(), block, number }],
-  };
-  persistData(nextData);
-  data = nextData;
+  await apiRequest('/units', {
+    method: 'POST',
+    body: JSON.stringify({ block: values.block.trim(), number: values.number.trim() }),
+  });
   showToast('Unidade cadastrada.');
-  navigate('cadastros');
+  await navigate('cadastros');
 }
 
 async function handleResident(form) {
   const values = readForm(form);
-  const cpf = values.cpf.replace(/\D/g, '');
-  if (!isValidCpf(cpf)) {
-    displayFormError('resident-error', 'Informe um CPF válido.');
-    return;
-  }
   if (!findUnit(values.unitId)) {
     displayFormError('resident-error', 'Selecione uma unidade cadastrada.');
     return;
   }
-  const email = normalize(values.email);
-  if (data.users.some((user) => user.email === email)) {
-    displayFormError('resident-error', 'Já existe um usuário cadastrado com esse e-mail.');
-    return;
-  }
-  if (data.users.some((user) => user.cpf === cpf)) {
-    displayFormError('resident-error', 'Já existe um morador cadastrado com esse CPF.');
-    return;
-  }
-  if (values.password.length < 8) {
-    displayFormError('resident-error', 'A senha precisa ter no mínimo 8 caracteres.');
-    return;
-  }
-
-  const credential = await createCredential(values.password);
-  const resident = {
-    id: newId(),
-    name: values.name.trim(),
-    email,
-    profile: 'MORADOR',
-    cpf,
-    unitId: values.unitId,
-    ...credential,
-  };
-  const nextData = { ...data, users: [...data.users, resident] };
-  persistData(nextData);
-  data = nextData;
+  await apiRequest('/residents', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: values.name.trim(),
+      email: normalize(values.email),
+      cpf: values.cpf,
+      unitId: Number(values.unitId),
+      password: values.password,
+    }),
+  });
   showToast('Morador cadastrado e vinculado à unidade.');
-  navigate('cadastros');
+  await navigate('cadastros');
 }
 
-function handleArea(form) {
+async function handleArea(form) {
   const values = readForm(form);
-  const name = values.name.trim();
-  const capacity = Number(values.capacity);
-  if (!Number.isInteger(capacity) || capacity < 1) {
-    displayFormError('area-error', 'A capacidade deve ser um número inteiro maior que zero.');
-    return;
-  }
-  if (data.commonAreas.some((area) => normalize(area.name) === normalize(name))) {
-    displayFormError('area-error', 'Já existe uma área com esse nome neste condomínio.');
-    return;
-  }
-
-  const nextData = {
-    ...data,
-    commonAreas: [...data.commonAreas, { id: newId(), name, capacity, usageLimit: values.usageLimit }],
-  };
-  persistData(nextData);
-  data = nextData;
+  await apiRequest('/areas', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: values.name.trim(),
+      capacity: Number(values.capacity),
+      usageLimit: values.usageLimit,
+    }),
+  });
   showToast('Área comum cadastrada.');
-  navigate('areas');
+  await navigate('areas');
 }
 
 document.addEventListener('click', (event) => {
   const viewLink = event.target.closest('[data-view]');
   if (viewLink && currentUser) {
     event.preventDefault();
-    navigate(viewLink.dataset.view);
+    navigate(viewLink.dataset.view).catch((error) => showToast(error.message));
     return;
   }
 
   if (event.target.closest('[data-action="logout"]')) {
     sessionStorage.removeItem(SESSION_KEY);
+    accessToken = null;
     currentUser = null;
     currentView = 'inicio';
     renderLogin();
@@ -499,9 +417,9 @@ document.addEventListener('submit', async (event) => {
   try {
     if (form.id === 'bootstrap-form') await handleBootstrap(form);
     else if (form.id === 'login-form') await handleLogin(form);
-    else if (form.id === 'unit-form') handleUnit(form);
+    else if (form.id === 'unit-form') await handleUnit(form);
     else if (form.id === 'resident-form') await handleResident(form);
-    else if (form.id === 'area-form') handleArea(form);
+    else if (form.id === 'area-form') await handleArea(form);
   } catch (error) {
     const errorId = {
       'bootstrap-form': 'bootstrap-error',
@@ -511,15 +429,30 @@ document.addEventListener('submit', async (event) => {
       'area-form': 'area-error',
     }[form.id];
     if (errorId) displayFormError(errorId, error.message || 'Não foi possível concluir a operação.');
+    if (form.id === 'login-form' && errorId) displayFormError(errorId, error.message);
   }
 });
 
-try {
-  data = loadData();
-  const sessionUserId = sessionStorage.getItem(SESSION_KEY);
-  currentUser = data.users.find((user) => user.id === sessionUserId) ?? null;
-  if (!data.condominium) renderBootstrap();
-  else renderApp();
-} catch (error) {
-  showStorageError(error);
+async function initialize() {
+  const setup = await apiRequest('/setup');
+  data.condominium = setup.condominiumName ? { name: setup.condominiumName } : null;
+  if (!setup.initialized) {
+    renderBootstrap();
+    return;
+  }
+
+  if (accessToken) {
+    try {
+      currentUser = await apiRequest('/me');
+      await navigate('inicio');
+      return;
+    } catch (error) {
+      if (error.status !== 401) throw error;
+      sessionStorage.removeItem(SESSION_KEY);
+      accessToken = null;
+    }
+  }
+  renderLogin();
 }
+
+initialize().catch(showStartupError);

@@ -7,27 +7,47 @@ Projeto de gestão condominial com módulos planejados de controle financeiro, l
 
 ## Stack
 - Frontend atual: HTML, CSS e JavaScript, sem dependências ou etapa de build
-- Backend planejado: C# com .NET 8
-- Banco de dados: PostgreSQL 15 foi usado para validar o DDL da E3; formalizar a decisão final da stack com a equipe
+- Backend: C# com .NET 8 (ASP.NET Core)
+- Banco de dados: PostgreSQL 15+
 - Integração de IA planejada: API da OpenAI
 
 ## Incremento da Sprint 1
 O frontend permite configurar o condomínio e o primeiro acesso de síndico, entrar como síndico ou morador, cadastrar unidades e moradores vinculados e cadastrar áreas comuns. O protótipo valida senha mínima de 8 caracteres, CPF, vínculo a uma unidade existente, duplicidade de bloco/número e duplicidade de nome de área.
 
-**Limitação importante:** este incremento é um protótipo de frontend sem backend. Os dados são mantidos no `localStorage` deste navegador e a autenticação não oferece segurança de produção; não use credenciais nem dados pessoais reais. A integração com API e PostgreSQL, com autorização validada no servidor, continua necessária para considerar essas funcionalidades prontas para uso real.
+O frontend da Sprint 1 usa a API e o PostgreSQL: a senha é derivada no servidor, o acesso é controlado por token/perfil e os dados são persistidos no banco. A API valida CPF, vínculo de morador, duplicidade de unidade/área e permissões do síndico.
 
 ## Como rodar localmente
-1. Sirva a pasta `frontend` em `localhost` ou abra `frontend/index.html` em um navegador atualizado com suporte a Web Crypto.
-2. No primeiro acesso, informe os dados do condomínio e crie a conta demonstrativa de síndico.
-3. Entre com essa conta para cadastrar unidades, moradores e áreas comuns. A senha inicial do morador permite demonstrar o acesso com o perfil **Morador**.
+Requisitos: .NET 8 SDK e PostgreSQL 15+.
 
-Não é necessário instalar dependências ou compilar o frontend. Limpar os dados do site no navegador apaga os cadastros locais e reinicia o protótipo.
+1. Crie um banco PostgreSQL vazio para esta aplicação (não reutilize um banco com dados nem o banco de exemplo carregado pelo script completo da E3):
+
+```powershell
+psql -U postgres -c "CREATE DATABASE vivacondo;"
+```
+
+   A API cria as tabelas do escopo Sprint 1 na inicialização.
+2. No PowerShell, configure a conexão, gere uma chave JWT local e inicie a API:
+
+```powershell
+$env:ConnectionStrings__Default = "Host=localhost;Port=5432;Database=vivacondo;Username=postgres;Password=SUA_SENHA_LOCAL"
+$bytes = New-Object byte[] 32
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($bytes)
+$env:JWT_SIGNING_KEY = [Convert]::ToBase64String($bytes)
+$rng.Dispose()
+$env:ASPNETCORE_URLS = "http://localhost:5080"
+dotnet run --project backend\VivaCondo.Api\VivaCondo.Api.csproj
+```
+
+3. Abra `http://localhost:5080`. No primeiro acesso, cadastre o condomínio e o primeiro síndico. O síndico pode então cadastrar unidades, moradores e áreas comuns; o morador entra com as credenciais criadas pelo síndico.
+
+Não use credenciais ou dados pessoais reais em ambientes de demonstração. A chave JWT deve ser mantida em variável de ambiente e trocada em cada ambiente.
 
 ## Estrutura do repositório
 ```
-/frontend       — interface e lógica local do protótipo da Sprint 1
-/src            — reservado para a futura API e lógica de negócios
-/docs           — documentação do projeto
+/frontend                  — interface web da Sprint 1
+/backend/VivaCondo.Api     — API ASP.NET Core e schema PostgreSQL da Sprint 1
+/docs                      — documentação do projeto
 ```
 
 ## Convenções da equipe
@@ -35,8 +55,18 @@ Não é necessário instalar dependências ou compilar o frontend. Limpar os dad
 - Commits: Conventional Commits
 - Toda PR exige revisão de ao menos 1 integrante antes do merge.
 
-## Testes
-O frontend da Sprint 1 deve ser validado manualmente para configuração inicial, login por perfil, credenciais inválidas, cadastro e duplicidade de unidades/áreas, validação de CPF e vínculo obrigatório do morador com unidade existente. Ainda não há backend/API, testes automatizados ou autenticação segura de produção.
+## Validação da Sprint 1
+Build da API: `dotnet build backend\VivaCondo.Api\VivaCondo.Api.csproj`.
+
+Fluxos manuais recomendados com a API e PostgreSQL em execução:
+- Configuração inicial uma única vez e rejeição de nova configuração após a criação do primeiro síndico.
+- Login com perfil correto, senha incorreta e perfil incompatível.
+- Cadastro de unidade; tentativa de duplicar bloco/número sem diferenciar maiúsculas.
+- Cadastro de morador com CPF válido e unidade existente; rejeição de CPF inválido, CPF/e-mail duplicado ou unidade de outro condomínio.
+- Cadastro de área com capacidade/horário válidos; rejeição de capacidade inválida e nome duplicado.
+- Confirmar que morador não acessa operações administrativas e que cadastros continuam após reiniciar a API.
+
+O script aplicado na inicialização está em `backend\VivaCondo.Api\database\schema.sql`. A Sprint 1 não inclui reservas, chamados, upload do regimento ou integração de IA.
 
 ## Licença / Uso acadêmico
 Projeto desenvolvido para a disciplina de Laboratório de Engenharia de Software — ADS, Fatec Ribeirão Preto, 2026.
