@@ -11,7 +11,7 @@
 | #6 Assistente virtual sobre o regimento | Sim | Sim | O assistente usa arquivo de texto configurado localmente, recupera trechos relacionados e possui resposta padrão quando não encontra informação. Teste com regimento e serviço de IA pendente. |
 
 ## 2. Incremento funcional demonstrável
-Aplicação web com API ASP.NET Core .NET 8 e PostgreSQL. O incremento da Sprint 2 inclui solicitação de reservas, abertura de chamados e consulta ao assistente com base em um arquivo de regimento configurado localmente. Não há deploy público; a aplicação pode ser executada localmente. Instruções para reproduzir: [`README.md`](../../README.md), seção “Como rodar localmente”.
+Aplicação web com API ASP.NET Core .NET 8 e PostgreSQL. O incremento da Sprint 2 inclui solicitação de reservas, abertura de chamados e consulta ao assistente com base em um arquivo de regimento configurado localmente. Não há deploy público; a aplicação pode ser executada localmente. Instruções para reproduzir: [`README.md`](../../README.md), seção “Como rodar localmente”. Vídeo da apresentação: [`apresentação sprint2.mp4`](./media/apresenta%C3%A7%C3%A3o%20sprint2.mp4).
 
 ## 3. Backlog atualizado
 Backlog priorizado: [`e2a.md`](../../backlog/sprint1/e2a.md). As histórias #4, #5 e #6 estão atribuídas à Sprint 2 e implementadas no código. Link ou captura do board e histórico das mudanças de status dos cards não estão disponíveis nos arquivos do projeto.
